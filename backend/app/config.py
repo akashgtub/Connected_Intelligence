@@ -13,7 +13,21 @@ class Settings(BaseSettings):
     falkordb_port: int = 6379
     falkordb_password: Optional[str] = None
     falkordb_username: Optional[str] = None
+    falkordb_ssl: bool = False
     falkordb_graph: str = "company_brain"
+
+    @property
+    def clean_falkordb_url(self) -> Optional[str]:
+        """Returns stripped and normalized FALKORDB_URL, removing accidental quotes/spaces."""
+        if not self.falkordb_url:
+            return None
+        cleaned = self.falkordb_url.strip().strip("'\"")
+        # Normalize falkordbs:// -> falkors:// and falkordb:// -> falkor://
+        if cleaned.startswith("falkordbs://"):
+            cleaned = "falkors://" + cleaned[len("falkordbs://"):]
+        elif cleaned.startswith("falkordb://"):
+            cleaned = "falkor://" + cleaned[len("falkordb://"):]
+        return cleaned if cleaned else None
 
     # AI Model API Keys (optional; deterministic graph engine used if omitted)
     openai_api_key: Optional[str] = None

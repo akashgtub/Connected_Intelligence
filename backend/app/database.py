@@ -42,11 +42,12 @@ class FalkorDBManager:
         self._last_check_time = now
 
         try:
-            if settings.falkordb_url:
-                sanitized_url = _sanitize_error(settings.falkordb_url)
+            url = settings.clean_falkordb_url
+            if url:
+                sanitized_url = _sanitize_error(url)
                 logger.info(f"Connecting to FalkorDB via remote URL: {sanitized_url}")
                 self.client = FalkorDB.from_url(
-                    settings.falkordb_url,
+                    url,
                     socket_connect_timeout=3.0,
                     socket_timeout=5.0
                 )
@@ -70,6 +71,8 @@ class FalkorDBManager:
                     kwargs["password"] = settings.falkordb_password
                 if settings.falkordb_username:
                     kwargs["username"] = settings.falkordb_username
+                if settings.falkordb_ssl:
+                    kwargs["ssl"] = True
                 
                 self.client = FalkorDB(**kwargs)
 
@@ -110,7 +113,7 @@ class FalkorDBManager:
     def query(self, cypher: str, params: Optional[Dict[str, Any]] = None) -> Any:
         """Executes a Cypher query against FalkorDB. Raises ConnectionError if FalkorDB is unreachable."""
         if not self.is_connected:
-            endpoint_desc = "configured FALKORDB_URL" if settings.falkordb_url else f"{settings.falkordb_host}:{settings.falkordb_port}"
+            endpoint_desc = "configured FALKORDB_URL" if settings.clean_falkordb_url else f"{settings.falkordb_host}:{settings.falkordb_port}"
             raise ConnectionError(
                 f"FalkorDB is unreachable at {endpoint_desc}. "
                 f"Ensure the database instance is running or configure FALKORDB_URL in Render environment variables. "
@@ -129,10 +132,10 @@ class FalkorDBManager:
         connected = self.is_connected
         stats = {
             "connected": connected,
-            "host": "remote" if settings.falkordb_url else settings.falkordb_host,
-            "port": None if settings.falkordb_url else settings.falkordb_port,
+            "host": "remote" if settings.clean_falkordb_url else settings.falkordb_host,
+            "port": None if settings.clean_falkordb_url else settings.falkordb_port,
             "graph_name": settings.falkordb_graph,
-            "url_configured": bool(settings.falkordb_url),
+            "url_configured": bool(settings.clean_falkordb_url),
             "last_error": _sanitize_error(self._last_error) if not connected else None,
             "guidance": (
                 "For production on Render: Set FALKORDB_URL in your Render Web Service environment variables.\n"
