@@ -26,8 +26,9 @@ services:
   # ============================================================================
   # 2. Frontend Static Site (React 19 + Vite Enterprise UI)
   # ============================================================================
-  - type: static
+  - type: web
     name: connected-intelligence-ui
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
