@@ -1,12 +1,23 @@
 import logging
 import socket
 import time
+import re
 from typing import Dict, Any, List, Optional, Tuple
 from falkordb import FalkorDB
 from app.config import settings
 from app.schema import NodeModel, EdgeModel
 
 logger = logging.getLogger("connected_intelligence.db")
+
+def _sanitize_error(error_msg: str) -> str:
+    """Masks credentials in connection URLs or errors to prevent leaking secrets."""
+    if not error_msg:
+        return ""
+    # Mask password in URL: ://user:password@host -> ://user:****@host
+    masked = re.sub(r'(:\/\/[^:]+:)[^@]+(@)', r'\1****\2', error_msg)
+    # Mask password in password-only URI: ://:password@host -> ://:****@host
+    masked = re.sub(r'(:\/\/:)[^@]+(@)', r'\1****\2', masked)
+    return masked
 
 class FalkorDBManager:
     def __init__(self):
@@ -18,7 +29,7 @@ class FalkorDBManager:
         self._check_interval = 2.0  # cache connection check for 2 seconds
 
     def _is_port_open(self, host: str, port: int, timeout: float = 0.5) -> bool:
-        """Fast pre-check to avoid long socket connect timeouts when FalkorDB is down."""
+        """Fast pre-check to avoid long socket connect timeouts when FalkorDB is down locally."""
         try:
             with socket.create_connection((host, port), timeout=timeout):
                 return True
@@ -26,19 +37,24 @@ class FalkorDBManager:
             return False
 
     def connect(self) -> bool:
-        """Attempts to connect to FalkorDB via URL or host/port."""
+        """Attempts to connect to FalkorDB via remote URL or local host/port."""
         now = time.time()
         self._last_check_time = now
 
         try:
             if settings.falkordb_url:
-                logger.info(f"Connecting to FalkorDB via URL: {settings.falkordb_url[:15]}...")
-                self.client = FalkorDB.from_url(settings.falkordb_url)
+                sanitized_url = _sanitize_error(settings.falkordb_url)
+                logger.info(f"Connecting to FalkorDB via remote URL: {sanitized_url}")
+                self.client = FalkorDB.from_url(
+                    settings.falkordb_url,
+                    socket_connect_timeout=3.0,
+                    socket_timeout=5.0
+                )
             else:
                 # Fast socket pre-check on host/port
                 if not self._is_port_open(settings.falkordb_host, settings.falkordb_port, timeout=0.4):
                     self._is_connected = False
-                    self._last_error = f"Cannot open socket connection to {settings.falkordb_host}:{settings.falkordb_port}. Target port is not listening."
+                    self._last_error = f"Cannot open socket to {settings.falkordb_host}:{settings.falkordb_port}. Target port is not listening."
                     self.client = None
                     self.graph = None
                     return False
@@ -66,10 +82,10 @@ class FalkorDBManager:
             return True
         except Exception as e:
             self._is_connected = False
-            self._last_error = str(e)
+            self._last_error = _sanitize_error(str(e))
             self.client = None
             self.graph = None
-            logger.warning(f"FalkorDB connection failed: {e}")
+            logger.warning(f"FalkorDB connection failed: {self._last_error}")
             return False
 
     @property
@@ -89,15 +105,16 @@ class FalkorDBManager:
 
     @property
     def last_error(self) -> str:
-        return self._last_error
+        return _sanitize_error(self._last_error)
 
     def query(self, cypher: str, params: Optional[Dict[str, Any]] = None) -> Any:
         """Executes a Cypher query against FalkorDB. Raises ConnectionError if FalkorDB is unreachable."""
         if not self.is_connected:
+            endpoint_desc = "configured FALKORDB_URL" if settings.falkordb_url else f"{settings.falkordb_host}:{settings.falkordb_port}"
             raise ConnectionError(
-                f"FalkorDB is unreachable at {settings.falkordb_host}:{settings.falkordb_port}. "
-                f"Ensure the FalkorDB Docker container is running (`docker run -p 6379:6379 -it --rm falkordb/falkordb`) "
-                f"or configure FALKORDB_URL / FALKORDB_HOST in .env. Details: {self._last_error}"
+                f"FalkorDB is unreachable at {endpoint_desc}. "
+                f"Ensure the database instance is running or configure FALKORDB_URL in Render environment variables. "
+                f"Details: {_sanitize_error(self._last_error)}"
             )
         try:
             if params:
@@ -108,21 +125,18 @@ class FalkorDBManager:
             raise e
 
     def get_status(self) -> Dict[str, Any]:
-        """Returns health and connection details for FalkorDB."""
+        """Returns health and connection details for FalkorDB without exposing credentials."""
         connected = self.is_connected
         stats = {
             "connected": connected,
-            "host": settings.falkordb_host,
-            "port": settings.falkordb_port,
+            "host": "remote" if settings.falkordb_url else settings.falkordb_host,
+            "port": None if settings.falkordb_url else settings.falkordb_port,
             "graph_name": settings.falkordb_graph,
             "url_configured": bool(settings.falkordb_url),
-            "last_error": self._last_error if not connected else None,
-            "docker_guidance": (
-                "To start FalkorDB locally with Docker:\n"
-                "docker run -p 6379:6379 -it --rm falkordb/falkordb\n"
-                "Or using docker-compose:\n"
-                "docker-compose up -d falkordb\n\n"
-                "Alternatively, configure FALKORDB_URL / FALKORDB_HOST in .env for FalkorDB Cloud."
+            "last_error": _sanitize_error(self._last_error) if not connected else None,
+            "guidance": (
+                "For production on Render: Set FALKORDB_URL in your Render Web Service environment variables.\n"
+                "For local development: Run 'docker run -p 6379:6379 -it --rm falkordb/falkordb'."
             ) if not connected else None
         }
         if connected:

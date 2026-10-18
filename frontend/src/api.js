@@ -1,4 +1,13 @@
-const API_BASE = "http://localhost:8000/api";
+const getApiBase = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && typeof envUrl === "string" && envUrl.trim()) {
+    const clean = envUrl.trim().replace(/\/+$/, "");
+    return clean.endsWith("/api") ? clean : `${clean}/api`;
+  }
+  return "http://localhost:8000/api";
+};
+
+const API_BASE = getApiBase();
 
 export async function fetchHealth() {
   try {
@@ -15,7 +24,10 @@ export async function fetchHealth() {
 
 export async function fetchDashboard() {
   const res = await fetch(`${API_BASE}/dashboard`);
-  if (!res.ok) throw new Error(`Dashboard API error (${res.status})`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Dashboard API error (${res.status})`);
+  }
   return await res.json();
 }
 
@@ -30,13 +42,19 @@ export async function fetchGraph(limit = 80) {
 
 export async function fetchNodeDetails(nodeId) {
   const res = await fetch(`${API_BASE}/graph/node/${encodeURIComponent(nodeId)}`);
-  if (!res.ok) throw new Error("Failed to load node details");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to load node details");
+  }
   return await res.json();
 }
 
 export async function fetchIncidents() {
   const res = await fetch(`${API_BASE}/incidents`);
-  if (!res.ok) throw new Error("Failed to load incidents");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to load incidents");
+  }
   return await res.json();
 }
 
@@ -56,7 +74,10 @@ export async function runInvestigation(question, incidentId = null) {
 export async function fetchMemories(search = "") {
   const url = search ? `${API_BASE}/memory?search=${encodeURIComponent(search)}` : `${API_BASE}/memory`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to load memories");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to load memories");
+  }
   return await res.json();
 }
 
@@ -66,7 +87,10 @@ export async function saveMemory(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
-  if (!res.ok) throw new Error("Failed to persist memory");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to persist memory");
+  }
   return await res.json();
 }
 

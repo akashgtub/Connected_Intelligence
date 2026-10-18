@@ -1,12 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { 
-  Network, 
   Search, 
-  Filter, 
   ZoomIn, 
   ZoomOut, 
   Maximize2, 
-  Layers, 
   RefreshCw, 
   Info, 
   ArrowRight,
@@ -15,15 +12,15 @@ import {
 import { fetchGraph, fetchNodeDetails } from "../api";
 
 const TYPE_COLORS = {
-  Person: "#A855F7",
+  Person: "#7C3AED",
   System: "#2563EB",
-  Incident: "#EF4444",
-  Decision: "#EC4899",
-  Document: "#10B981",
-  Memory: "#14B8A6",
-  Project: "#F59E0B",
-  Team: "#3B82F6",
-  Entity: "#94A3B8"
+  Incident: "#DC2626",
+  Decision: "#DB2777",
+  Document: "#059669",
+  Memory: "#0D9488",
+  Project: "#D97706",
+  Team: "#4F46E5",
+  Entity: "#6B647A"
 };
 
 export default function GraphExplorerView({ dbStatus }) {
@@ -120,26 +117,27 @@ export default function GraphExplorerView({ dbStatus }) {
         gap: 12
       }}>
         <div>
-          <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#FFFFFF" }}>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-main)" }}>
             FalkorDB Knowledge Graph Explorer
           </h1>
-          <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-            Real-time interactive canvas showing live graph nodes, relationships, and multi-hop paths.
+          <p style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
+            Interactive visual canvas showing live graph nodes, relationships, and multi-hop paths.
           </p>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {/* Search */}
           <div style={{
-            background: "rgba(13, 25, 48, 0.8)",
+            background: "#FFFFFF",
             border: "1px solid var(--border-subtle)",
             borderRadius: 8,
-            padding: "6px 10px",
+            padding: "6px 12px",
             display: "flex",
             alignItems: "center",
-            gap: 6
+            gap: 6,
+            boxShadow: "var(--shadow-sm)"
           }}>
-            <Search size={14} color="var(--text-dim)" />
+            <Search size={14} color="var(--text-muted)" />
             <input
               type="text"
               value={search}
@@ -149,7 +147,7 @@ export default function GraphExplorerView({ dbStatus }) {
                 background: "transparent",
                 border: "none",
                 outline: "none",
-                color: "#FFFFFF",
+                color: "var(--text-main)",
                 fontSize: "0.82rem",
                 width: 170
               }}
@@ -161,14 +159,16 @@ export default function GraphExplorerView({ dbStatus }) {
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
             style={{
-              background: "rgba(13, 25, 48, 0.8)",
+              background: "#FFFFFF",
               border: "1px solid var(--border-subtle)",
-              color: "#E2E8F0",
+              color: "var(--text-main)",
               borderRadius: 8,
-              padding: "6px 10px",
+              padding: "6px 12px",
               fontSize: "0.82rem",
+              fontWeight: 500,
               outline: "none",
-              cursor: "pointer"
+              cursor: "pointer",
+              boxShadow: "var(--shadow-sm)"
             }}
           >
             <option value="ALL">All Entity Types</option>
@@ -186,7 +186,7 @@ export default function GraphExplorerView({ dbStatus }) {
           <button
             onClick={() => setZoom(z => Math.min(z + 0.2, 2.2))}
             className="btn-secondary"
-            style={{ padding: "6px 10px" }}
+            style={{ padding: "6px 12px" }}
             title="Zoom In"
           >
             <ZoomIn size={14} />
@@ -194,7 +194,7 @@ export default function GraphExplorerView({ dbStatus }) {
           <button
             onClick={() => setZoom(z => Math.max(z - 0.2, 0.5))}
             className="btn-secondary"
-            style={{ padding: "6px 10px" }}
+            style={{ padding: "6px 12px" }}
             title="Zoom Out"
           >
             <ZoomOut size={14} />
@@ -202,7 +202,7 @@ export default function GraphExplorerView({ dbStatus }) {
           <button
             onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
             className="btn-secondary"
-            style={{ padding: "6px 10px" }}
+            style={{ padding: "6px 12px" }}
             title="Reset View"
           >
             <Maximize2 size={14} />
@@ -210,7 +210,7 @@ export default function GraphExplorerView({ dbStatus }) {
           <button
             onClick={loadGraph}
             className="btn-secondary"
-            style={{ padding: "6px 10px" }}
+            style={{ padding: "6px 12px" }}
             title="Reload from FalkorDB"
           >
             <RefreshCw size={14} className={loading ? "pulse-glow" : ""} />
@@ -228,13 +228,13 @@ export default function GraphExplorerView({ dbStatus }) {
           onMouseUp={handleMouseUp}
           style={{
             height: 600,
-            background: "radial-gradient(circle at center, #0B172E 0%, #050B16 85%)",
-            border: "1px solid rgba(52, 120, 255, 0.25)",
+            background: "radial-gradient(circle at center, #FFFFFF 0%, #F5F0FF 100%)",
+            border: "1px solid var(--border-subtle)",
             borderRadius: 16,
             overflow: "hidden",
             position: "relative",
             cursor: isDragging ? "grabbing" : "grab",
-            boxShadow: "inset 0 0 30px rgba(0,0,0,0.6)"
+            boxShadow: "0 4px 20px rgba(109, 40, 217, 0.04)"
           }}
         >
           {loading && (
@@ -247,10 +247,11 @@ export default function GraphExplorerView({ dbStatus }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "rgba(5, 11, 22, 0.7)",
+              background: "rgba(255, 255, 255, 0.8)",
               zIndex: 30,
-              color: "var(--accent-cyan)",
-              fontSize: "0.9rem",
+              color: "var(--accent-purple)",
+              fontSize: "0.92rem",
+              fontWeight: 600,
               gap: 8
             }}>
               <RefreshCw size={18} className="pulse-glow" /> Querying FalkorDB graph...
@@ -264,12 +265,12 @@ export default function GraphExplorerView({ dbStatus }) {
               left: "50%",
               transform: "translate(-50%, -50%)",
               textAlign: "center",
-              color: "#FCA5A5",
+              color: "#DC2626",
               zIndex: 20
             }}>
-              <Database size={32} color="#EF4444" style={{ margin: "0 auto 10px" }} />
-              <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>FalkorDB is Offline</div>
-              <div style={{ fontSize: "0.8rem", color: "#94A3B8", marginTop: 4 }}>
+              <Database size={32} color="#DC2626" style={{ margin: "0 auto 10px" }} />
+              <div style={{ fontWeight: 700, fontSize: "1rem" }}>FalkorDB is Offline</div>
+              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: 4 }}>
                 Start FalkorDB with Docker to explore live nodes.
               </div>
             </div>
@@ -295,16 +296,17 @@ export default function GraphExplorerView({ dbStatus }) {
                       y1={s.y}
                       x2={t.x}
                       y2={t.y}
-                      stroke={isConnectedToSelected ? "#22D3EE" : "rgba(52, 120, 255, 0.22)"}
-                      strokeWidth={isConnectedToSelected ? 2 : 1}
-                      strokeDasharray={isConnectedToSelected ? "none" : "2 2"}
+                      stroke={isConnectedToSelected ? "#6D28D9" : "#DDD6FE"}
+                      strokeWidth={isConnectedToSelected ? 2.2 : 1.2}
+                      strokeDasharray={isConnectedToSelected ? "none" : "3 3"}
                     />
                     {/* Relationship label */}
                     <text
                       x={(s.x + t.x) / 2}
                       y={(s.y + t.y) / 2 - 4}
-                      fill={isConnectedToSelected ? "#93C5FD" : "#475569"}
-                      fontSize={isConnectedToSelected ? "8" : "7"}
+                      fill={isConnectedToSelected ? "#6D28D9" : "#9A92AB"}
+                      fontSize={isConnectedToSelected ? "9" : "8"}
+                      fontWeight={isConnectedToSelected ? 700 : 500}
                       textAnchor="middle"
                       fontFamily="var(--font-mono)"
                     >
@@ -317,7 +319,7 @@ export default function GraphExplorerView({ dbStatus }) {
               {/* Nodes */}
               {positionedNodes.map((n) => {
                 const isSelected = selectedNode?.id === n.id;
-                const color = TYPE_COLORS[n.type] || "#94A3B8";
+                const color = TYPE_COLORS[n.type] || "#6B647A";
 
                 return (
                   <g 
@@ -330,11 +332,11 @@ export default function GraphExplorerView({ dbStatus }) {
                       <circle
                         cx={n.x}
                         cy={n.y}
-                        r={28}
+                        r={26}
                         fill="none"
                         stroke={color}
-                        strokeWidth={2}
-                        opacity={0.6}
+                        strokeWidth={2.5}
+                        opacity={0.8}
                       />
                     )}
                     {/* Node circle */}
@@ -343,17 +345,17 @@ export default function GraphExplorerView({ dbStatus }) {
                       cy={n.y}
                       r={isSelected ? 18 : 14}
                       fill={color}
-                      stroke="#050B16"
-                      strokeWidth={2}
-                      opacity={isSelected ? 1 : 0.85}
+                      stroke="#FFFFFF"
+                      strokeWidth={2.5}
+                      boxShadow="0 2px 6px rgba(0,0,0,0.15)"
                     />
                     {/* Node Label */}
                     <text
                       x={n.x}
                       y={n.y + 28}
-                      fill={isSelected ? "#FFFFFF" : "#CBD5E1"}
-                      fontSize={isSelected ? "10" : "8"}
-                      fontWeight={isSelected ? 700 : 500}
+                      fill={isSelected ? "var(--accent-purple)" : "var(--text-main)"}
+                      fontSize={isSelected ? "11" : "9"}
+                      fontWeight={isSelected ? 800 : 600}
                       textAnchor="middle"
                       fontFamily="var(--font-sans)"
                     >
@@ -370,32 +372,29 @@ export default function GraphExplorerView({ dbStatus }) {
             position: "absolute",
             bottom: 12,
             left: 14,
-            background: "rgba(5, 11, 22, 0.85)",
+            background: "rgba(255, 255, 255, 0.92)",
             backdropFilter: "blur(8px)",
             padding: "8px 12px",
-            borderRadius: 8,
+            borderRadius: 10,
             border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--shadow-sm)",
             display: "flex",
             flexWrap: "wrap",
-            gap: 10,
-            fontSize: "0.72rem"
+            gap: 12,
+            fontSize: "0.75rem"
           }}>
             {Object.entries(TYPE_COLORS).map(([type, color]) => (
-              <div key={type} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
-                <span style={{ color: "#94A3B8" }}>{type}</span>
+              <div key={type} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 9, height: 9, borderRadius: "50%", background: color }} />
+                <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>{type}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Node Inspector Panel */}
-        <div style={{
-          background: "rgba(13, 25, 48, 0.85)",
-          backdropFilter: "blur(14px)",
-          border: "1px solid rgba(52, 120, 255, 0.25)",
-          borderRadius: 16,
-          padding: "1.4rem",
+        <div className="white-card" style={{
+          padding: "1.5rem",
           display: "flex",
           flexDirection: "column",
           gap: 14,
@@ -403,8 +402,8 @@ export default function GraphExplorerView({ dbStatus }) {
           overflowY: "auto"
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 10 }}>
-            <Info size={16} color="var(--accent-cyan)" />
-            <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#FFFFFF" }}>
+            <Info size={18} color="var(--accent-purple)" />
+            <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-main)" }}>
               Entity Inspector
             </h3>
           </div>
@@ -413,43 +412,44 @@ export default function GraphExplorerView({ dbStatus }) {
             <>
               <div>
                 <span style={{
-                  fontSize: "0.7rem",
+                  fontSize: "0.72rem",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   padding: "3px 8px",
-                  borderRadius: 4,
-                  background: `${TYPE_COLORS[selectedNode.type] || "#94A3B8"}22`,
-                  color: TYPE_COLORS[selectedNode.type] || "#94A3B8",
-                  border: `1px solid ${TYPE_COLORS[selectedNode.type] || "#94A3B8"}44`
+                  borderRadius: 6,
+                  background: `${TYPE_COLORS[selectedNode.type] || "#6B647A"}15`,
+                  color: TYPE_COLORS[selectedNode.type] || "#6B647A",
+                  border: `1px solid ${TYPE_COLORS[selectedNode.type] || "#6B647A"}33`
                 }}>
                   {selectedNode.type}
                 </span>
-                <h4 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#FFFFFF", marginTop: 8 }}>
+                <h4 style={{ fontSize: "1.15rem", fontWeight: 800, color: "var(--text-main)", marginTop: 8 }}>
                   {selectedNode.label}
                 </h4>
-                <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
                   ID: {selectedNode.id}
                 </div>
               </div>
 
               {/* Properties list */}
               <div>
-                <span style={{ fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 600, display: "block", marginBottom: 6 }}>
+                <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 700, display: "block", marginBottom: 6, letterSpacing: "0.05em" }}>
                   NODE PROPERTIES:
                 </span>
                 <div style={{
-                  background: "rgba(5, 11, 22, 0.6)",
+                  background: "#FAF8FF",
                   borderRadius: 8,
-                  padding: "8px 10px",
-                  fontSize: "0.78rem",
+                  border: "1px solid var(--border-subtle)",
+                  padding: "10px 12px",
+                  fontSize: "0.8rem",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 4
+                  gap: 5
                 }}>
                   {Object.entries(selectedNode.properties || {}).map(([k, v]) => (
                     <div key={k} style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ color: "#94A3B8" }}>{k}:</span>
-                      <span style={{ color: "#F1F5F9", fontWeight: 500, maxWidth: 170, textAlign: "right", wordBreak: "break-word" }}>
+                      <span style={{ color: "var(--text-muted)" }}>{k}:</span>
+                      <span style={{ color: "var(--text-main)", fontWeight: 600, maxWidth: 170, textAlign: "right", wordBreak: "break-word" }}>
                         {String(v)}
                       </span>
                     </div>
@@ -459,7 +459,7 @@ export default function GraphExplorerView({ dbStatus }) {
 
               {/* Connected Neighbors */}
               <div>
-                <span style={{ fontSize: "0.76rem", color: "var(--text-muted)", fontWeight: 600, display: "block", marginBottom: 6 }}>
+                <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 700, display: "block", marginBottom: 6, letterSpacing: "0.05em" }}>
                   CONNECTED NEIGHBORS ({nodeDetails?.connected_neighbors?.length || 0}):
                 </span>
                 {nodeDetails?.connected_neighbors && nodeDetails.connected_neighbors.length > 0 ? (
@@ -472,39 +472,45 @@ export default function GraphExplorerView({ dbStatus }) {
                           if (target) handleSelectNode(target);
                         }}
                         style={{
-                          background: "rgba(5, 11, 22, 0.6)",
+                          background: "#FAF8FF",
                           border: "1px solid var(--border-subtle)",
-                          padding: "6px 10px",
-                          borderRadius: 6,
-                          fontSize: "0.76rem",
+                          padding: "8px 12px",
+                          borderRadius: 8,
+                          fontSize: "0.78rem",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "space-between",
                           cursor: "pointer",
-                          transition: "border 0.2s"
+                          transition: "all 0.2s"
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--accent-blue)"}
-                        onMouseLeave={(e) => e.currentTarget.style.borderColor = "var(--border-subtle)"}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = "#C4B5FD";
+                          e.currentTarget.style.background = "#F5F0FF";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = "var(--border-subtle)";
+                          e.currentTarget.style.background = "#FAF8FF";
+                        }}
                       >
                         <div>
-                          <div style={{ color: "#FFFFFF", fontWeight: 600 }}>{nb.label || nb.id}</div>
-                          <div style={{ color: "var(--text-dim)", fontSize: "0.68rem" }}>
+                          <div style={{ color: "var(--text-main)", fontWeight: 700 }}>{nb.label || nb.id}</div>
+                          <div style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}>
                             [{nb.relationship}] {nb.type}
                           </div>
                         </div>
-                        <ArrowRight size={12} color="var(--accent-cyan)" />
+                        <ArrowRight size={13} color="var(--accent-purple)" />
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div style={{ fontSize: "0.76rem", color: "var(--text-dim)" }}>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
                     No 1-hop relationships discovered.
                   </div>
                 )}
               </div>
             </>
           ) : (
-            <div style={{ fontSize: "0.82rem", color: "var(--text-muted)", textAlign: "center", padding: "2rem 0" }}>
+            <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", textAlign: "center", padding: "2.5rem 0" }}>
               Click any node in the graph to inspect its properties and connected relationships.
             </div>
           )}

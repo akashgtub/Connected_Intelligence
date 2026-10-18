@@ -16,8 +16,8 @@ const NODES = [
     id: "people",
     title: "People",
     subtitle: "Who knows what?",
-    color: "#A855F7",
-    glow: "rgba(168, 85, 247, 0.4)",
+    color: "#7C3AED",
+    bg: "#F5F0FF",
     icon: Users,
     angle: 270, // Top
     dist: 175
@@ -26,8 +26,8 @@ const NODES = [
     id: "documents",
     title: "Documents",
     subtitle: "Guides, wikis, reports",
-    color: "#10B981",
-    glow: "rgba(16, 185, 129, 0.4)",
+    color: "#059669",
+    bg: "#ECFDF5",
     icon: FileText,
     angle: 315, // Top-Right
     dist: 185
@@ -36,8 +36,8 @@ const NODES = [
     id: "projects",
     title: "Projects",
     subtitle: "What's being built?",
-    color: "#F59E0B",
-    glow: "rgba(245, 158, 11, 0.4)",
+    color: "#D97706",
+    bg: "#FFFBEB",
     icon: Box,
     angle: 0, // Right-Top
     dist: 190
@@ -46,8 +46,8 @@ const NODES = [
     id: "incidents",
     title: "Incidents",
     subtitle: "What happened before?",
-    color: "#EF4444",
-    glow: "rgba(239, 68, 68, 0.4)",
+    color: "#DC2626",
+    bg: "#FEF2F2",
     icon: AlertTriangle,
     angle: 45, // Right-Bottom
     dist: 185
@@ -56,8 +56,8 @@ const NODES = [
     id: "teams",
     title: "Teams",
     subtitle: "Who owns what?",
-    color: "#3B82F6",
-    glow: "rgba(59, 130, 246, 0.4)",
+    color: "#2563EB",
+    bg: "#EFF6FF",
     icon: Users2,
     angle: 90, // Bottom-Right
     dist: 175
@@ -66,8 +66,8 @@ const NODES = [
     id: "decisions",
     title: "Decisions",
     subtitle: "Why was this chosen?",
-    color: "#EC4899",
-    glow: "rgba(236, 72, 153, 0.4)",
+    color: "#DB2777",
+    bg: "#FDF2F8",
     icon: ClipboardCheck,
     angle: 135, // Bottom
     dist: 185
@@ -76,8 +76,8 @@ const NODES = [
     id: "conversations",
     title: "Conversations",
     subtitle: "Questions and answers",
-    color: "#06B6D4",
-    glow: "rgba(6, 182, 212, 0.4)",
+    color: "#0891B2",
+    bg: "#ECFEFF",
     icon: MessageSquare,
     angle: 180, // Bottom-Left
     dist: 190
@@ -86,8 +86,8 @@ const NODES = [
     id: "systems",
     title: "Systems",
     subtitle: "What depends on what?",
-    color: "#2563EB",
-    glow: "rgba(37, 99, 235, 0.4)",
+    color: "#6D28D9",
+    bg: "#F5F0FF",
     icon: Code2,
     angle: 225, // Left
     dist: 185
@@ -116,17 +116,9 @@ export default function HeroRadialGraph({ onNodeClick }) {
         height="500" 
         style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
       >
-        <defs>
-          <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.4" />
-            <stop offset="60%" stopColor="#3478FF" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#050B16" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* Ambient Ring */}
-        <circle cx={cx} cy={cy} r="180" fill="none" stroke="rgba(52, 120, 255, 0.12)" strokeWidth="1" strokeDasharray="4 6" />
-        <circle cx={cx} cy={cy} r="110" fill="none" stroke="rgba(34, 211, 238, 0.1)" strokeWidth="1" />
+        {/* Subtle Ambient Rings */}
+        <circle cx={cx} cy={cy} r="180" fill="none" stroke="#E9E3F5" strokeWidth="1" strokeDasharray="4 6" />
+        <circle cx={cx} cy={cy} r="115" fill="none" stroke="#DDD6FE" strokeWidth="1.2" />
 
         {/* Connecting Lines */}
         {NODES.map((n) => {
@@ -142,12 +134,12 @@ export default function HeroRadialGraph({ onNodeClick }) {
                 y1={cy} 
                 x2={x} 
                 y2={y} 
-                stroke={isSelected ? n.color : "rgba(52, 120, 255, 0.28)"}
+                stroke={isSelected ? n.color : "#DDD6FE"}
                 strokeWidth={isSelected ? 2.5 : 1.2}
                 strokeDasharray={isSelected ? "none" : "3 3"}
-                style={{ transition: "stroke 0.3s, stroke-width 0.3s" }}
+                style={{ transition: "stroke 0.25s, stroke-width 0.25s" }}
               />
-              {/* Animated pulse dot along line */}
+              {/* Pulse dot */}
               <circle 
                 cx={(cx + x) / 2} 
                 cy={(cy + y) / 2} 
@@ -162,21 +154,22 @@ export default function HeroRadialGraph({ onNodeClick }) {
 
       {/* Central FalkorDB Hub */}
       <div 
+        onClick={() => onNodeClick?.("graph")}
         style={{
           position: "absolute",
           width: 120,
           height: 120,
           borderRadius: 24,
-          background: "linear-gradient(135deg, #0A1935 0%, #061124 100%)",
-          border: "2px solid #22D3EE",
-          boxShadow: "0 0 35px rgba(34, 211, 238, 0.35), inset 0 0 20px rgba(52, 120, 255, 0.3)",
+          background: "#FFFFFF",
+          border: "2px solid #6D28D9",
+          boxShadow: "0 10px 30px rgba(109, 40, 217, 0.16), 0 2px 8px rgba(109, 40, 217, 0.08)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           zIndex: 10,
           cursor: "pointer",
-          transition: "transform 0.3s ease"
+          transition: "transform 0.25s ease"
         }}
         onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.06)"}
         onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
@@ -185,19 +178,19 @@ export default function HeroRadialGraph({ onNodeClick }) {
           width: 44,
           height: 44,
           borderRadius: 12,
-          background: "linear-gradient(135deg, #3478FF 0%, #22D3EE 100%)",
+          background: "linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           marginBottom: 6,
-          boxShadow: "0 0 15px rgba(34, 211, 238, 0.6)"
+          boxShadow: "0 4px 14px rgba(109, 40, 217, 0.35)"
         }}>
-          <Database size={24} color="#050B16" strokeWidth={2.5} />
+          <Database size={24} color="#FFFFFF" strokeWidth={2.2} />
         </div>
-        <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "#FFFFFF", letterSpacing: "0.02em" }}>
+        <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "var(--text-main)", letterSpacing: "-0.01em" }}>
           FalkorDB
         </span>
-        <span style={{ fontSize: "0.62rem", color: "#22D3EE", fontWeight: 600, letterSpacing: "0.08em" }}>
+        <span style={{ fontSize: "0.62rem", color: "var(--accent-purple)", fontWeight: 700, letterSpacing: "0.08em" }}>
           GRAPH BRAIN
         </span>
       </div>
@@ -218,10 +211,10 @@ export default function HeroRadialGraph({ onNodeClick }) {
             onClick={() => onNodeClick?.(n.id)}
             style={{
               position: "absolute",
-              left: x - 40,
-              top: y - 40,
-              width: 80,
-              height: 80,
+              left: x - 42,
+              top: y - 42,
+              width: 84,
+              height: 84,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -231,16 +224,16 @@ export default function HeroRadialGraph({ onNodeClick }) {
               transition: "transform 0.25s ease"
             }}
           >
-            {/* Circular Glowing Icon */}
+            {/* Glowing Icon Circle */}
             <div style={{
-              width: 46,
-              height: 46,
+              width: 48,
+              height: 48,
               borderRadius: "50%",
-              background: `radial-gradient(circle, ${n.color}22 0%, #0A1324 85%)`,
-              border: `2px solid ${isHovered ? n.color : `${n.color}88`}`,
+              background: isHovered ? n.color : n.bg,
+              border: `2px solid ${isHovered ? n.color : "#E9E3F5"}`,
               boxShadow: isHovered 
-                ? `0 0 25px ${n.color}, inset 0 0 10px ${n.color}66`
-                : `0 0 12px ${n.glow}`,
+                ? `0 6px 20px ${n.color}55` 
+                : "0 2px 8px rgba(33, 24, 59, 0.06)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -248,22 +241,22 @@ export default function HeroRadialGraph({ onNodeClick }) {
               transform: isHovered ? "scale(1.15)" : "scale(1)",
               transition: "all 0.25s ease"
             }}>
-              <IconComponent size={20} color={n.color} strokeWidth={2.2} />
+              <IconComponent size={22} color={isHovered ? "#FFFFFF" : n.color} strokeWidth={2.2} />
             </div>
 
             {/* Title & Subtitle */}
             <span style={{
-              fontSize: "0.75rem",
+              fontSize: "0.78rem",
               fontWeight: 700,
-              color: isHovered ? "#FFFFFF" : "#E2E8F0",
+              color: isHovered ? "var(--accent-purple)" : "var(--text-main)",
               textAlign: "center",
               lineHeight: 1.1
             }}>
               {n.title}
             </span>
             <span style={{
-              fontSize: "0.58rem",
-              color: "var(--text-dim)",
+              fontSize: "0.6rem",
+              color: "var(--text-muted)",
               textAlign: "center",
               whiteSpace: "nowrap"
             }}>

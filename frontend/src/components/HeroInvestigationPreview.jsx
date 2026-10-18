@@ -15,11 +15,10 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
     <div style={{
       width: "100%",
       maxWidth: 440,
-      background: "rgba(10, 19, 36, 0.9)",
-      backdropFilter: "blur(20px)",
+      background: "#FFFFFF",
       borderRadius: 18,
-      border: "1px solid rgba(52, 120, 255, 0.3)",
-      boxShadow: "0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(52, 120, 255, 0.15)",
+      border: "1px solid var(--border-subtle)",
+      boxShadow: "0 12px 35px rgba(109, 40, 217, 0.08), 0 2px 6px rgba(33, 24, 59, 0.04)",
       padding: "1.4rem",
       display: "flex",
       flexDirection: "column",
@@ -30,16 +29,16 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
         display: "flex",
         alignItems: "flex-start",
         gap: 10,
-        background: "rgba(255, 255, 255, 0.04)",
+        background: "#F5F0FF",
         padding: "10px 14px",
         borderRadius: 12,
-        border: "1px solid rgba(255, 255, 255, 0.06)"
+        border: "1px solid #E9E3F5"
       }}>
         <div style={{
           width: 28,
           height: 28,
           borderRadius: "50%",
-          background: "linear-gradient(135deg, #4F46E5, #9333EA)",
+          background: "linear-gradient(135deg, #6D28D9, #8B5CF6)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -51,7 +50,7 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
           U
         </div>
         <div>
-          <div style={{ fontSize: "0.85rem", color: "#F1F5F9", fontWeight: 500 }}>
+          <div style={{ fontSize: "0.86rem", color: "var(--text-main)", fontWeight: 600 }}>
             Our payment system is down. What should we do?
           </div>
         </div>
@@ -63,22 +62,22 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
           width: 28,
           height: 28,
           borderRadius: 8,
-          background: "linear-gradient(135deg, #0284C7, #22D3EE)",
+          background: "linear-gradient(135deg, #6D28D9, #8B5CF6)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          boxShadow: "0 0 10px rgba(34, 211, 238, 0.4)"
+          boxShadow: "0 2px 8px rgba(109, 40, 217, 0.25)"
         }}>
-          <Sparkles size={16} color="#050B16" strokeWidth={2.5} />
+          <Sparkles size={16} color="#FFFFFF" strokeWidth={2.2} />
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "0.85rem", color: "#E2E8F0", lineHeight: 1.4, marginBottom: 8 }}>
+          <div style={{ fontSize: "0.85rem", color: "var(--text-main)", lineHeight: 1.4, marginBottom: 8, fontWeight: 500 }}>
             I found a similar incident from 3 months ago. Here's what I recommend:
           </div>
           <ol style={{
-            fontSize: "0.8rem",
-            color: "#94A3B8",
+            fontSize: "0.82rem",
+            color: "var(--text-muted)",
             paddingLeft: "1.1rem",
             display: "flex",
             flexDirection: "column",
@@ -86,23 +85,23 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
           }}>
             <li>Check the database connection pool</li>
             <li>Verify the payment service logs</li>
-            <li>Contact <strong style={{ color: "#F1F5F9" }}>Alex</strong> (fixed this previously)</li>
-            <li>Review the incident report (<strong style={{ color: "var(--accent-cyan)" }}>INC-1042</strong>)</li>
+            <li>Contact <strong style={{ color: "var(--text-main)" }}>Alex</strong> (fixed this previously)</li>
+            <li>Review the incident report (<strong style={{ color: "var(--accent-purple)" }}>INC-1042</strong>)</li>
           </ol>
         </div>
       </div>
 
       {/* Evidence Path Box */}
       <div style={{
-        background: "rgba(5, 11, 22, 0.75)",
+        background: "#FAF8FF",
         borderRadius: 14,
         padding: "1rem",
-        border: "1px solid rgba(52, 120, 255, 0.2)"
+        border: "1px solid var(--border-subtle)"
       }}>
         <div style={{
-          fontSize: "0.75rem",
+          fontSize: "0.72rem",
           fontWeight: 700,
-          color: "#94A3B8",
+          color: "var(--accent-purple)",
           textTransform: "uppercase",
           letterSpacing: "0.06em",
           marginBottom: 10,
@@ -111,7 +110,7 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
           justifyContent: "space-between"
         }}>
           <span>Evidence Path (FalkorDB Traversal)</span>
-          <span style={{ color: "var(--accent-blue)", fontSize: "0.7rem", fontWeight: 600 }}>5 Hops</span>
+          <span style={{ color: "var(--text-muted)", fontSize: "0.7rem", fontWeight: 600 }}>5 Hops</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -121,23 +120,23 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
               width: 24,
               height: 24,
               borderRadius: 6,
-              background: "rgba(239, 68, 68, 0.15)",
-              border: "1px solid rgba(239, 68, 68, 0.4)",
+              background: "#FEF2F2",
+              border: "1px solid #FECACA",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0
             }}>
-              <AlertCircle size={13} color="#EF4444" />
+              <AlertCircle size={13} color="#DC2626" />
             </div>
             <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#F8FAFC" }}>Current Incident</span>
-              <span style={{ fontSize: "0.72rem", color: "#94A3B8" }}>Payment service down</span>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-main)" }}>Current Incident</span>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Payment service down</span>
             </div>
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-start", paddingLeft: 11 }}>
-            <ArrowDown size={12} color="#475569" />
+            <ArrowDown size={12} color="#C4B5FD" />
           </div>
 
           {/* Step 2 */}
@@ -146,23 +145,23 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
               width: 24,
               height: 24,
               borderRadius: 6,
-              background: "rgba(37, 99, 235, 0.15)",
-              border: "1px solid rgba(37, 99, 235, 0.4)",
+              background: "#EFF6FF",
+              border: "1px solid #BFDBFE",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0
             }}>
-              <Database size={13} color="#3B82F6" />
+              <Database size={13} color="#2563EB" />
             </div>
             <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#F8FAFC" }}>Related System</span>
-              <span style={{ fontSize: "0.72rem", color: "#94A3B8" }}>PostgreSQL Cluster</span>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-main)" }}>Related System</span>
+              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>PostgreSQL Cluster</span>
             </div>
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-start", paddingLeft: 11 }}>
-            <ArrowDown size={12} color="#475569" />
+            <ArrowDown size={12} color="#C4B5FD" />
           </div>
 
           {/* Step 3 */}
@@ -171,23 +170,23 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
               width: 24,
               height: 24,
               borderRadius: 6,
-              background: "rgba(245, 158, 11, 0.15)",
-              border: "1px solid rgba(245, 158, 11, 0.4)",
+              background: "#FFFBEB",
+              border: "1px solid #FDE68A",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0
             }}>
-              <Server size={13} color="#F59E0B" />
+              <Server size={13} color="#D97706" />
             </div>
             <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#F8FAFC" }}>Similar Past Incident</span>
-              <span style={{ fontSize: "0.72rem", color: "#FCD34D" }}>INC-1042 (resolved)</span>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-main)" }}>Similar Past Incident</span>
+              <span style={{ fontSize: "0.72rem", color: "#B45309", fontWeight: 600 }}>INC-1042 (resolved)</span>
             </div>
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-start", paddingLeft: 11 }}>
-            <ArrowDown size={12} color="#475569" />
+            <ArrowDown size={12} color="#C4B5FD" />
           </div>
 
           {/* Step 4 */}
@@ -196,23 +195,23 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
               width: 24,
               height: 24,
               borderRadius: 6,
-              background: "rgba(168, 85, 247, 0.15)",
-              border: "1px solid rgba(168, 85, 247, 0.4)",
+              background: "#F5F0FF",
+              border: "1px solid #DDD6FE",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0
             }}>
-              <UserCheck size={13} color="#A855F7" />
+              <UserCheck size={13} color="#6D28D9" />
             </div>
             <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#F8FAFC" }}>Engineer</span>
-              <span style={{ fontSize: "0.72rem", color: "#E9D5FF" }}>Alex Chen (fixed previously)</span>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-main)" }}>Engineer</span>
+              <span style={{ fontSize: "0.72rem", color: "#6D28D9", fontWeight: 600 }}>Alex Chen (fixed previously)</span>
             </div>
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-start", paddingLeft: 11 }}>
-            <ArrowDown size={12} color="#475569" />
+            <ArrowDown size={12} color="#C4B5FD" />
           </div>
 
           {/* Step 5 */}
@@ -221,18 +220,18 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
               width: 24,
               height: 24,
               borderRadius: 6,
-              background: "rgba(16, 185, 129, 0.15)",
-              border: "1px solid rgba(16, 185, 129, 0.4)",
+              background: "#ECFDF5",
+              border: "1px solid #A7F3D0",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0
             }}>
-              <CheckCircle2 size={13} color="#10B981" />
+              <CheckCircle2 size={13} color="#059669" />
             </div>
             <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#F8FAFC" }}>Solution</span>
-              <span style={{ fontSize: "0.72rem", color: "#6EE7B7" }}>DB connection pool tuning</span>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-main)" }}>Solution</span>
+              <span style={{ fontSize: "0.72rem", color: "#047857", fontWeight: 600 }}>DB connection pool tuning</span>
             </div>
           </div>
         </div>
@@ -242,7 +241,7 @@ export default function HeroInvestigationPreview({ onLaunchFullAgent }) {
       <button 
         onClick={onLaunchFullAgent}
         className="btn-primary" 
-        style={{ width: "100%", padding: "10px", fontSize: "0.85rem", gap: 6 }}
+        style={{ width: "100%", padding: "10px", fontSize: "0.88rem", gap: 6 }}
       >
         <Play size={14} fill="#FFF" /> Run Live Investigation in Workspace
       </button>

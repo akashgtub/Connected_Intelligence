@@ -14,8 +14,6 @@ import MemoryView from "./views/MemoryView";
 
 import { fetchHealth } from "./api";
 import { 
-  Sparkles, 
-  ArrowRight, 
   Play, 
   Share2, 
   Brain, 
@@ -27,6 +25,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("landing");
   const [dbStatus, setDbStatus] = useState(null);
   const [initialQuestion, setInitialQuestion] = useState("");
+  const [selectedIncidentId, setSelectedIncidentId] = useState(null);
 
   const checkDb = async () => {
     const health = await fetchHealth();
@@ -39,26 +38,64 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleStartInvestigation = (question = "Our payment system is down. What should we do?") => {
+  const handleStartInvestigation = (question = "Our payment system is down. What should we do?", incId = null) => {
     setInitialQuestion(question);
+    setSelectedIncidentId(incId);
     setActiveTab("investigate");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleInvestigateIncident = (question, incidentId) => {
     setInitialQuestion(question);
+    setSelectedIncidentId(incidentId);
     setActiveTab("investigate");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleRadialNodeClick = (nodeId) => {
+    if (nodeId === "incidents") {
+      setActiveTab("incidents");
+    } else if (nodeId === "conversations") {
+      handleStartInvestigation("What happened during the previous payment API outage?");
+      return;
+    } else {
+      setActiveTab("graph");
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleFeatureClick = (featureIndex) => {
+    switch (featureIndex) {
+      case 0: // Find Connected Insights
+        setActiveTab("graph");
+        break;
+      case 1: // Remember Across Sessions
+        setActiveTab("memory");
+        break;
+      case 2: // Take Action with Context
+      case 3: // Explain Every Answer
+        handleStartInvestigation();
+        return;
+      default:
+        setActiveTab("dashboard");
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-primary)" }}>
       {/* Navigation */}
       <Navbar 
         activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }} 
         dbStatus={dbStatus}
-        onOpenWorkspace={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        onOpenWorkspace={() => {
+          setActiveTab("investigate");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       />
 
       {/* Main Container */}
@@ -73,12 +110,12 @@ export default function App() {
             <div className="ambient-glow-center" />
 
             {/* HERO SECTION */}
-            <div style={{
+            <div className="hero-grid" style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               alignItems: "center",
               gap: "2.5rem",
-              paddingTop: "1.5rem",
+              paddingTop: "2rem",
               paddingBottom: "3.5rem",
               position: "relative",
               zIndex: 1
@@ -90,17 +127,17 @@ export default function App() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 6,
-                  padding: "5px 14px",
+                  padding: "6px 16px",
                   borderRadius: 20,
-                  background: "rgba(52, 120, 255, 0.12)",
-                  border: "1px solid rgba(52, 120, 255, 0.35)",
-                  color: "#93C5FD",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
+                  background: "#F5F0FF",
+                  border: "1px solid #DDD6FE",
+                  color: "var(--accent-purple)",
+                  fontSize: "0.84rem",
+                  fontWeight: 700,
                   marginBottom: "1.2rem",
-                  boxShadow: "0 0 15px rgba(52, 120, 255, 0.15)"
+                  boxShadow: "0 2px 8px rgba(109, 40, 217, 0.08)"
                 }}>
-                  <span style={{ color: "#38BDF8" }}>⚡</span> Powered by FalkorDB
+                  <span style={{ color: "var(--accent-purple)" }}>⚡</span> Powered by FalkorDB
                 </div>
 
                 {/* Main Heading */}
@@ -110,7 +147,7 @@ export default function App() {
                   lineHeight: 1.05,
                   letterSpacing: "-0.03em",
                   marginBottom: "0.8rem",
-                  color: "#FFFFFF"
+                  color: "var(--text-main)"
                 }}>
                   Connected <br />
                   <span className="gradient-title-accent">Intelligence</span>
@@ -119,8 +156,8 @@ export default function App() {
                 {/* Tagline */}
                 <h2 style={{
                   fontSize: "1.35rem",
-                  fontWeight: 600,
-                  color: "#E2E8F0",
+                  fontWeight: 700,
+                  color: "var(--text-main)",
                   marginBottom: "1rem",
                   letterSpacing: "-0.01em"
                 }}>
@@ -139,20 +176,22 @@ export default function App() {
                 </p>
 
                 {/* CTAs */}
-                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: "2.5rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: "2.5rem", flexWrap: "wrap" }}>
                   <button
-                    onClick={() => handleStartInvestigation()}
+                    type="button"
+                    onClick={() => handleStartInvestigation("Our payment system is down. What should we do?")}
                     className="btn-primary"
-                    style={{ padding: "12px 24px", fontSize: "0.98rem" }}
+                    style={{ padding: "12px 26px", fontSize: "1rem" }}
                   >
                     Get Started →
                   </button>
                   <button
-                    onClick={() => handleStartInvestigation("What happened during the previous payment API outage?")}
+                    type="button"
+                    onClick={() => handleStartInvestigation("What happened during the previous payment API outage?", "INC-1042")}
                     className="btn-secondary"
                     style={{ padding: "12px 22px", fontSize: "0.98rem", gap: 6 }}
                   >
-                    <Play size={15} fill="#FFF" /> Explore Demo
+                    <Play size={15} fill="var(--accent-purple)" color="var(--accent-purple)" /> Explore Demo
                   </button>
                 </div>
 
@@ -163,32 +202,30 @@ export default function App() {
                   gap: 12,
                   maxWidth: 480
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "#CBD5E1" }}>
-                    <Share2 size={16} color="var(--accent-blue)" /> Graph-Powered AI Agent
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "var(--text-main)", fontWeight: 500 }}>
+                    <Share2 size={16} color="var(--accent-purple)" /> Graph-Powered AI Agent
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "#CBD5E1" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "var(--text-main)", fontWeight: 500 }}>
                     <Brain size={16} color="var(--accent-green)" /> Persistent Memory
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "#CBD5E1" }}>
-                    <ShieldCheck size={16} color="var(--accent-cyan)" /> Explainable Answers
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "var(--text-main)", fontWeight: 500 }}>
+                    <ShieldCheck size={16} color="#2563EB" /> Explainable Answers
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "#CBD5E1" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "var(--text-main)", fontWeight: 500 }}>
                     <FileText size={16} color="var(--accent-amber)" /> Works with Your Data
                   </div>
                 </div>
               </div>
 
               {/* Right Column: Hero Radial Graph + Live Investigation Preview Card */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2rem" }}>
-                <HeroRadialGraph onNodeClick={(type) => {
-                  setActiveTab("graph");
-                }} />
-                <HeroInvestigationPreview onLaunchFullAgent={() => handleStartInvestigation()} />
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2rem", width: "100%" }}>
+                <HeroRadialGraph onNodeClick={handleRadialNodeClick} />
+                <HeroInvestigationPreview onLaunchFullAgent={() => handleStartInvestigation("Our payment system is down. What should we do?", "INC-1140")} />
               </div>
             </div>
 
             {/* Feature Cards Section */}
-            <FeatureCards />
+            <FeatureCards onSelectFeature={handleFeatureClick} />
 
             {/* How It Works Section */}
             <HowItWorks />
@@ -198,24 +235,25 @@ export default function App() {
 
             {/* Final CTA Strip */}
             <div style={{
-              background: "linear-gradient(135deg, rgba(52, 120, 255, 0.15) 0%, rgba(13, 25, 48, 0.9) 100%)",
-              border: "1px solid rgba(52, 120, 255, 0.35)",
+              background: "linear-gradient(135deg, #F5F0FF 0%, #FFFFFF 100%)",
+              border: "1px solid #DDD6FE",
               borderRadius: 20,
               padding: "3.5rem 2rem",
               textAlign: "center",
               margin: "3rem 0 4rem",
-              boxShadow: "0 10px 40px rgba(0,0,0,0.5)"
+              boxShadow: "var(--shadow-md)"
             }}>
-              <h2 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#FFFFFF", marginBottom: 12 }}>
+              <h2 style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--text-main)", marginBottom: 12 }}>
                 Connected Knowledge. Smarter Decisions.
               </h2>
-              <p style={{ fontSize: "1rem", color: "#CBD5E1", maxWidth: 600, margin: "0 auto 2rem", lineHeight: 1.6 }}>
+              <p style={{ fontSize: "1.05rem", color: "var(--text-muted)", maxWidth: 600, margin: "0 auto 2rem", lineHeight: 1.6 }}>
                 Stop investigating in the dark. Discover historical resolutions, connect upstream dependencies, and leverage company brain intelligence today.
               </p>
               <button
-                onClick={() => handleStartInvestigation()}
+                type="button"
+                onClick={() => handleStartInvestigation("Our payment system is down. What should we do?")}
                 className="btn-primary"
-                style={{ padding: "12px 30px", fontSize: "1.05rem" }}
+                style={{ padding: "13px 32px", fontSize: "1.05rem" }}
               >
                 Launch Connected Intelligence →
               </button>
@@ -225,13 +263,28 @@ export default function App() {
 
         {/* WORKSPACE VIEWS */}
         {activeTab === "dashboard" && (
-          <DashboardView onNavigate={(tab) => setActiveTab(tab)} dbStatus={dbStatus} />
+          <DashboardView 
+            onNavigate={(tab, question, incidentId) => {
+              if (question) {
+                setInitialQuestion(question);
+                setSelectedIncidentId(incidentId || null);
+              }
+              setActiveTab(tab);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }} 
+            dbStatus={dbStatus} 
+          />
         )}
 
         {activeTab === "investigate" && (
           <InvestigationView 
             dbStatus={dbStatus} 
-            onNavigateToMemory={() => setActiveTab("memory")} 
+            initialQuestion={initialQuestion}
+            incidentId={selectedIncidentId}
+            onNavigateToMemory={() => {
+              setActiveTab("memory");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }} 
           />
         )}
 
@@ -250,15 +303,17 @@ export default function App() {
           <MemoryView 
             dbStatus={dbStatus} 
             onContinueInvestigation={(q) => {
-              setInitialQuestion(q);
-              setActiveTab("investigate");
+              handleStartInvestigation(q);
             }} 
           />
         )}
       </main>
 
       {/* Footer */}
-      <Footer onOpenWorkspace={() => setActiveTab("investigate")} />
+      <Footer onOpenWorkspace={() => {
+        setActiveTab("investigate");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }} />
     </div>
   );
 }

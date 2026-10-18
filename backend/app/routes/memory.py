@@ -88,6 +88,6 @@ def trigger_seed():
     if not db_manager.is_connected:
         raise HTTPException(
             status_code=503,
-            detail="FalkorDB is unreachable. Please verify container is running at localhost:6379."
+            detail="FalkorDB is unreachable. Please verify database connection or FALKORDB_URL."
         )
     return seed_database()

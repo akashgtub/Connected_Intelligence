@@ -1,0 +1,40 @@
+services:
+  # ============================================================================
+  # 1. Backend Web Service (FastAPI Graph Agent)
+  # ============================================================================
+  - type: web
+    name: connected-intelligence-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FALKORDB_GRAPH
+        value: company_brain
+      - key: FALKORDB_URL
+        sync: false # Set in Render Dashboard: falkor://username:password@instance.falkordb.cloud:port
+      - key: FRONTEND_ORIGINS
+        sync: false # Set in Render Dashboard: https://connected-intelligence-ui.onrender.com
+      - key: OPENAI_API_KEY
+        sync: false # Optional
+      - key: GEMINI_API_KEY
+        sync: false # Optional
+
+  # ============================================================================
+  # 2. Frontend Static Site (React 19 + Vite Enterprise UI)
+  # ============================================================================
+  - type: static
+    name: connected-intelligence-ui
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false # Set in Render Dashboard: https://connected-intelligence-api.onrender.com

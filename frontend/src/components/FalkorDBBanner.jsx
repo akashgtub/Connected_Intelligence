@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Database, AlertTriangle, CheckCircle, RefreshCw, Copy, Check, Sparkles } from "lucide-react";
+import { AlertTriangle, CheckCircle, RefreshCw, Copy, Check, Sparkles } from "lucide-react";
 import { triggerSeed } from "../api";
 
 export default function FalkorDBBanner({ dbStatus, onRefresh }) {
@@ -34,24 +34,25 @@ export default function FalkorDBBanner({ dbStatus, onRefresh }) {
   if (isConnected) {
     return (
       <div style={{
-        background: "rgba(16, 185, 129, 0.08)",
-        border: "1px solid rgba(16, 185, 129, 0.25)",
-        borderRadius: 12,
+        background: "#ECFDF5",
+        border: "1px solid #A7F3D0",
+        borderRadius: 14,
         padding: "10px 18px",
         marginBottom: "1.5rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         flexWrap: "wrap",
-        gap: 12
+        gap: 12,
+        boxShadow: "0 2px 8px rgba(5, 150, 105, 0.05)"
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <CheckCircle size={18} color="#10B981" />
-          <span style={{ fontSize: "0.85rem", color: "#E2E8F0" }}>
-            <strong style={{ color: "#34D399" }}>FalkorDB Connected:</strong> Graph <code style={{ color: "#22D3EE" }}>{dbStatus.graph_name}</code> on port {dbStatus.port} ({dbStatus.node_count || 0} nodes, {dbStatus.relationship_count || 0} edges)
+          <CheckCircle size={18} color="#059669" />
+          <span style={{ fontSize: "0.85rem", color: "#065F46" }}>
+            <strong style={{ color: "#047857" }}>FalkorDB Connected:</strong> Graph <code style={{ color: "#6D28D9", background: "#FAF8FF", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>{dbStatus.graph_name}</code> {dbStatus.port ? `on port ${dbStatus.port}` : "(Remote Instance)"} ({dbStatus.node_count || 0} nodes, {dbStatus.relationship_count || 0} edges)
           </span>
           {seedResult && (
-            <span style={{ fontSize: "0.8rem", color: "#FCD34D", background: "rgba(245, 158, 11, 0.15)", padding: "2px 8px", borderRadius: 6 }}>
+            <span style={{ fontSize: "0.8rem", color: "#92400E", background: "#FEF3C7", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>
               {seedResult}
             </span>
           )}
@@ -59,30 +60,33 @@ export default function FalkorDBBanner({ dbStatus, onRefresh }) {
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
+            type="button"
             onClick={handleSeed}
             disabled={seeding}
             style={{
-              background: "rgba(16, 185, 129, 0.2)",
-              border: "1px solid rgba(16, 185, 129, 0.4)",
-              color: "#34D399",
+              background: "#FFFFFF",
+              border: "1px solid #A7F3D0",
+              color: "#059669",
               padding: "4px 12px",
-              borderRadius: 6,
+              borderRadius: 8,
               fontSize: "0.8rem",
               fontWeight: 600,
               cursor: seeding ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 5
+              gap: 5,
+              boxShadow: "0 1px 3px rgba(5, 150, 105, 0.1)"
             }}
           >
             <Sparkles size={13} /> {seeding ? "Seeding..." : "Re-Seed Graph"}
           </button>
           <button
+            type="button"
             onClick={onRefresh}
             style={{
               background: "transparent",
               border: "none",
-              color: "#94A3B8",
+              color: "#059669",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -100,29 +104,32 @@ export default function FalkorDBBanner({ dbStatus, onRefresh }) {
   // Disconnected Banner
   return (
     <div style={{
-      background: "rgba(239, 68, 68, 0.08)",
-      border: "1px solid rgba(239, 68, 68, 0.3)",
+      background: "#FFF5F5",
+      border: "1px solid #FECACA",
       borderRadius: 14,
-      padding: "1rem 1.4rem",
-      marginBottom: "2rem"
+      padding: "1.2rem 1.4rem",
+      marginBottom: "2rem",
+      boxShadow: "0 2px 10px rgba(220, 38, 38, 0.05)"
     }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
-        <AlertTriangle size={22} color="#EF4444" style={{ flexShrink: 0, marginTop: 2 }} />
+        <AlertTriangle size={22} color="#DC2626" style={{ flexShrink: 0, marginTop: 2 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "0.92rem", fontWeight: 700, color: "#FCA5A5", marginBottom: 4 }}>
-            FalkorDB is Not Reachable on {dbStatus?.host || "localhost"}:{dbStatus?.port || 6379}
+          <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#991B1B", marginBottom: 4 }}>
+            FalkorDB is Not Reachable {dbStatus?.url_configured ? "(Remote FalkorDB Instance)" : `on ${dbStatus?.host || "localhost"}:${dbStatus?.port || 6379}`}
           </div>
-          <div style={{ fontSize: "0.82rem", color: "#CBD5E1", lineHeight: 1.5 }}>
+          <div style={{ fontSize: "0.84rem", color: "#7F1D1D", lineHeight: 1.5 }}>
             Connected Intelligence requires an active FalkorDB instance for genuine Cypher queries and persistent memory.
-            Run the official Docker container locally:
+            {dbStatus?.url_configured 
+              ? " Please verify your remote FALKORDB_URL configuration and database status."
+              : " For local development, run the official Docker container below; for production, configure FALKORDB_URL in your Render Web Service environment variables."}
           </div>
         </div>
       </div>
 
       {/* Terminal Command Snippet */}
       <div style={{
-        background: "rgba(5, 11, 22, 0.85)",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
+        background: "#FFFFFF",
+        border: "1px solid #E9E3F5",
         borderRadius: 8,
         padding: "8px 12px",
         display: "flex",
@@ -130,40 +137,42 @@ export default function FalkorDBBanner({ dbStatus, onRefresh }) {
         justifyContent: "space-between",
         fontFamily: "var(--font-mono)",
         fontSize: "0.82rem",
-        color: "#22D3EE",
-        marginBottom: 10
+        color: "#6D28D9",
+        marginBottom: 10,
+        boxShadow: "0 1px 3px rgba(109, 40, 217, 0.05)"
       }}>
-        <code>{dockerCmd}</code>
+        <code style={{ fontWeight: 600 }}>{dockerCmd}</code>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
             onClick={handleCopy}
             style={{
-              background: "rgba(52, 120, 255, 0.2)",
-              border: "1px solid rgba(52, 120, 255, 0.4)",
-              color: "#93C5FD",
-              padding: "4px 8px",
-              borderRadius: 5,
+              background: "#F5F0FF",
+              border: "1px solid #DDD6FE",
+              color: "#6D28D9",
+              padding: "4px 10px",
+              borderRadius: 6,
               fontSize: "0.75rem",
+              fontWeight: 600,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               gap: 4
             }}
           >
-            {copied ? <Check size={12} color="#34D399" /> : <Copy size={12} />}
+            {copied ? <Check size={12} color="#059669" /> : <Copy size={12} />}
             {copied ? "Copied" : "Copy"}
           </button>
         </div>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-        <span style={{ fontSize: "0.75rem", color: "#94A3B8" }}>
-          Tip: Alternatively configure <code style={{ color: "#38BDF8" }}>FALKORDB_URL</code> or <code style={{ color: "#38BDF8" }}>FALKORDB_HOST</code> in <code style={{ color: "#CBD5E1" }}>backend/.env</code> for FalkorDB Cloud.
+        <span style={{ fontSize: "0.78rem", color: "#6B647A" }}>
+          Tip: Alternatively configure <code style={{ color: "#6D28D9", fontWeight: 600 }}>FALKORDB_URL</code> or <code style={{ color: "#6D28D9", fontWeight: 600 }}>FALKORDB_HOST</code> in <code style={{ color: "#21183B" }}>backend/.env</code> for FalkorDB Cloud.
         </span>
         <button
           onClick={onRefresh}
           className="btn-secondary"
-          style={{ padding: "5px 12px", fontSize: "0.78rem", gap: 5 }}
+          style={{ padding: "6px 14px", fontSize: "0.8rem", gap: 5 }}
         >
           <RefreshCw size={12} /> Retry Connection
         </button>

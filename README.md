@@ -28,8 +28,8 @@ When a critical outage occurs (e.g. `Payment Service down with database timeouts
 
 ```mermaid
 graph TD
-    subgraph Frontend ["React 19 + Vite Enterprise UI"]
-        UI["Landing Page / Workspace (Port 5173)"]
+    subgraph Frontend ["React 19 + Vite Enterprise UI (Render Static Site)"]
+        UI["Landing Page / Workspace (Port 5173 / Production URL)"]
         Hero["SVG Radial Graph & Evidence Card"]
         Dash["Company Brain Dashboard"]
         Chat["AI Investigation Agent"]
@@ -37,15 +37,15 @@ graph TD
         MemoryView["Persistent Memory Manager"]
     end
 
-    subgraph Backend ["FastAPI Graph Agent (Port 8000)"]
+    subgraph Backend ["FastAPI Graph Agent (Render Web Service)"]
         API["FastAPI Orchestrator"]
         Agent["GraphAgentEngine"]
         Tools["Graph Tools (Cypher Traversals)"]
         HealthMgr["FalkorDB Connection Manager"]
     end
 
-    subgraph GraphDB ["FalkorDB Graph Engine (Port 6379)"]
-        Falkor["FalkorDB Server (falkordb/falkordb:latest)"]
+    subgraph GraphDB ["FalkorDB Engine (Remote Cloud / Docker)"]
+        Falkor["FalkorDB (falkordb/falkordb:latest)"]
         Graph["'company_brain' Property Graph"]
         Nodes["Nodes: Person, Team, System, Incident, Decision, Memory, Document"]
         Rels["Edges: AFFECTS, USES, OWNS, RESOLVED_BY, WORKED_ON, REFERENCES"]
@@ -155,63 +155,124 @@ MERGE (m)-[:ABOUT]->(s);
 
 ## 5. Technology Stack
 
-- **Graph Database:** FalkorDB (`falkordb/falkordb:latest` on Redis port 6379)
-- **Database Driver:** Official Python Client `falkordb>=1.8.0`
+- **Graph Database:** FalkorDB (`falkordb/falkordb:latest` locally or [FalkorDB Cloud](https://falkordb.com/))
+- **Database Driver:** Official Python Client `falkordb>=1.8.0` with Redis wire protocol
 - **Backend:** Python 3.11, FastAPI, Uvicorn, Pydantic v2
-- **Frontend:** React 19, Vite 8, Lucide React icons, Vanilla CSS Design System
-- **Styling:** Midnight Navy aesthetic (`#050B16`), Electric Blue (`#3478FF`), Cyan (`#22D3EE`), Inter typography
+- **Frontend:** React 19, Vite, Lucide React icons, Vanilla CSS Design System
+- **Design System:** Light lavender & purple enterprise aesthetic (`#FAF8FF`, `#6D28D9`, `#8B5CF6`), Inter & JetBrains Mono typography
 
 ---
 
-## 6. How to Run the Application
+## 6. Production Deployment on Render
 
-### Step 1: Start FalkorDB
+Both the **Frontend** and **Backend** are configured for deployment on **Render**.
 
-#### Option A: Local Docker (Recommended)
+### Step 1: Remote FalkorDB Database Instance
+
+1. Create a free database at [FalkorDB Cloud](https://falkordb.com/) (or run a persistent remote FalkorDB instance).
+2. Copy your connection URL:
+   `falkor://username:password@your-instance.falkordb.cloud:port`
+   *(Or for TLS/SSL: `falkors://username:password@your-instance.falkordb.cloud:port`)*
+3. The graph name will be `company_brain`.
+
+---
+
+### Step 2: Deploy Backend Web Service (Render)
+
+1. Log in to the [Render Dashboard](https://dashboard.render.com/) and click **New + > Web Service**.
+2. Connect your Git repository.
+3. Configure the service settings:
+   - **Name:** `connected-intelligence-api`
+   - **Root Directory:** `backend`
+   - **Environment:** `Python 3`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Plan:** Free
+4. Add the following **Environment Variables**:
+   | Variable | Value / Description |
+   |---|---|
+   | `PYTHON_VERSION` | `3.11.9` |
+   | `FALKORDB_URL` | `falkor://username:password@your-instance.falkordb.cloud:port` |
+   | `FALKORDB_GRAPH` | `company_brain` |
+   | `FRONTEND_ORIGINS` | `https://connected-intelligence-ui.onrender.com` *(Set after creating frontend)* |
+   | `OPENAI_API_KEY` | *(Optional; deterministic graph engine is used if omitted)* |
+   | `GEMINI_API_KEY` | *(Optional)* |
+5. Click **Create Web Service**. Note the deployed URL (e.g., `https://connected-intelligence-api.onrender.com`).
+
+---
+
+### Step 3: Deploy Frontend Static Site (Render)
+
+1. In the Render Dashboard, click **New + > Static Site**.
+2. Connect the same Git repository.
+3. Configure the static site settings:
+   - **Name:** `connected-intelligence-ui`
+   - **Root Directory:** `frontend`
+   - **Build Command:** `npm install && npm run build`
+   - **Publish Directory:** `dist`
+4. Add the following **Environment Variable**:
+   | Variable | Value / Description |
+   |---|---|
+   | `VITE_API_BASE_URL` | `https://connected-intelligence-api.onrender.com` *(Backend URL from Step 2)* |
+5. Under **Redirects / Rewrites**, add the SPA rewrite rule:
+   - **Type:** `Rewrite`
+   - **Source:** `/*`
+   - **Destination:** `/index.html`
+6. Click **Create Static Site**.
+7. Once deployed, copy your frontend URL (e.g. `https://connected-intelligence-ui.onrender.com`) and update the backend's `FRONTEND_ORIGINS` variable.
+
+---
+
+### Alternative: Automated 1-Click Blueprint (`render.yaml`)
+
+This repository contains a validated [render.yaml](file:///c:/Connected_Intelligence/render.yaml) file. You can deploy both services in one step:
+1. In Render Dashboard, click **New + > Blueprint**.
+2. Select this repository. Render automatically reads `render.yaml` and provisions both `connected-intelligence-api` and `connected-intelligence-ui`.
+3. Fill in `FALKORDB_URL`, `FRONTEND_ORIGINS`, and `VITE_API_BASE_URL` when prompted.
+
+---
+
+## 7. Production Troubleshooting
+
+- **CORS Errors:** Ensure `FRONTEND_ORIGINS` on the backend matches the exact protocol and domain of the Render frontend (e.g. `https://connected-intelligence-ui.onrender.com`). The backend automatically permits `localhost` origins for local development alongside production.
+- **Cold Starts on Render Free Tier:** Render free-tier web services spin down after 15 minutes of inactivity. The first API request after inactivity may take 30–50 seconds while the container initializes. The UI handles this gracefully with connection status indicators.
+- **FalkorDB Connection Timeouts:** Verify that your FalkorDB Cloud instance allows connections from `0.0.0.0/0` (standard for serverless/cloud platforms). Check `/api/health` to confirm socket reachability without exposing credentials.
+- **SPA 404 on Refresh:** Verify the Render Static Site has the rewrite rule `/* -> /index.html` configured.
+
+---
+
+## 8. Local Development Setup
+
+### Option 1: 1-Click Windows Launcher (Easiest)
+Double-click `run.bat` in the project root to start FalkorDB, FastAPI backend, and React frontend in separate windows. Run `stop.bat` to stop the FalkorDB container.
+
+### Option 2: Manual 3-Terminal Execution
+
+#### Terminal 1 — Start FalkorDB
 ```bash
-# Run official FalkorDB prebuilt Docker image:
-docker run -p 6379:6379 -it --rm falkordb/falkordb
-
-# OR using Docker Compose:
-docker-compose up -d falkordb
+docker compose up -d
+# or: docker run -p 6379:6379 -it --rm falkordb/falkordb
 ```
 
-#### Option B: FalkorDB Cloud
-If running without local Docker, create a free database at [FalkorDB Cloud](https://falkordb.com/) and configure `backend/.env`:
-```env
-FALKORDB_URL=falkor://username:password@your-cloud-instance.falkordb.cloud:port
-FALKORDB_GRAPH=company_brain
-```
-
-### Step 2: Start the Backend (FastAPI)
+#### Terminal 2 — Start Backend (Port 8000)
 ```bash
-# Navigate to backend directory:
 cd backend
-
-# Install dependencies:
 pip install -r requirements.txt
-
-# Start the API server:
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-API runs at: `http://127.0.0.1:8000` (Interactive docs at `/docs`)
+Interactive Swagger docs: `http://127.0.0.1:8000/docs`
 
-### Step 3: Start the Frontend (React + Vite)
+#### Terminal 3 — Start Frontend (Port 5173)
 ```bash
-# Navigate to frontend directory:
 cd frontend
-
-# Install npm dependencies:
 npm install
-
-# Start Vite dev server:
 npm run dev
 ```
-Open your browser at: `http://127.0.0.1:5173`
+Web Application: `http://127.0.0.1:5173`
 
 ---
 
-## 7. Synthetic Data Seeding
+## 9. Synthetic Data Seeding
 
 The synthetic dataset represents **Apex Cloud Platform**, populated with:
 - **6 People:** Alex Chen (Payment Platform Lead), Sarah Jenkins (Principal SRE), Marcus Vance (Security Lead), Elena Rostova (Staff DBA), Priyanshu Mehta (Full Stack), David Kim (DevOps).
@@ -222,27 +283,7 @@ The synthetic dataset represents **Apex Cloud Platform**, populated with:
 - **5 Decisions:** DEC-201 (HikariCP limits), DEC-202 (Read replica routing), DEC-203 (Token caching), DEC-204 (Retry jitter), DEC-205 (Automated failover).
 - **Documents & Historical Postmortems.**
 
-Seeding runs automatically on startup if the graph is empty, or can be triggered anytime via `POST /api/seed` or the **"Re-Seed Graph"** button in the dashboard.
-
----
-
-## 8. Verified End-to-End Test Results
-
-1. **Backend Initialization:** FastAPI starts cleanly on port 8000 with lifespan check.
-2. **Health Endpoint (`GET /api/health`):** Accurately detects FalkorDB socket state and provides actionable Docker instructions when disconnected.
-3. **Dashboard Telemetry (`GET /api/dashboard`):** Returns real node and relationship counts without fake static mocks.
-4. **Graph Agent Traversal (`POST /api/investigations`):** Executes multi-hop Cypher queries across System -> Incident -> Person -> Decision, returns explainable 5-step Evidence Paths, and persists memories into FalkorDB.
-5. **Persistent Memory (`GET /api/memory` & `POST /api/memory`):** Saves cross-session investigation learnings and retrieves them dynamically.
-6. **Production Build:** Vite production build compiles with 0 errors (`npm run build` succeeds).
-
----
-
-## 9. Current Environment & Docker Blocker Disclosure
-
-- **Docker Status:** Docker Desktop is not installed on this Windows environment (`shutil.which('docker')` returned `None`, and Windows registry inspection confirms Docker Desktop is absent).
-- **System Behavior:** The application handles this gracefully. When FalkorDB is offline, the backend and frontend display a prominent connection banner with the exact command to run:  
-  `docker run -p 6379:6379 -it --rm falkordb/falkordb`
-- As soon as FalkorDB is started (via local Docker or FalkorDB Cloud URL in `.env`), the backend immediately establishes connectivity, auto-seeds the graph, and responds to real-time queries.
+Seeding runs automatically on startup if the graph is empty, or can be triggered anytime via `POST /api/seed` or the **"Re-Seed Graph"** button in the dashboard. Seeding is fully idempotent using Cypher `MERGE`.
 
 ---
 
